@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Canlı Balık Haritası</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<style>
+  body, html { margin: 0; padding: 0; }
+  #map { height: 100vh; width: 100%; }
+
+  .legend {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: white;
+    padding: 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+  }
+  .legend span {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
+    border-radius: 50%;
+  }
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div class="legend">
+  <div><span style="background:red"></span> Balon Balığı</div>
+  <div><span style="background:orange"></span> Aslan Balığı</div>
+  <div><span style="background:purple"></span> Sokar Balığı</div>
+  <div><span style="background:blue"></span> Diğer Türler</div>
+</div>
+
+<script>
+// 🗺️ Harita
+var map = L.map('map').setView([36.3067, 30.1467], 14);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+// 🎨 Türlere göre renk
+function renk(tur) {
+  if (tur === "Balon Balığı") return "red";
+  if (tur === "Aslan Balığı") return "orange";
+  if (tur === "Sokar Balığı") return "purple";
+  return "blue";
+}
+
+// 🌊 Kıyıdan 10–50 metre deniz içine otomatik kaydırma
+function denizeKaydir(lat, lon) {
+  var mesafe = 10 + Math.random() * 40; // metre
+  var aci = 180 + (Math.random() * 40 - 20); // deniz yönü
+
+  var dLat = (mesafe * Math.cos(aci * Math.PI / 180)) / 111320;
+  var dLon = (mesafe * Math.sin(aci * Math.PI / 180)) /
+             (111320 * Math.cos(lat * Math.PI / 180));
+
+  return [lat + dLat, lon + dLon];
+}
+
+// 🔗 GOOGLE SHEETS CSV LİNKİNİ BURAYA YAPIŞTIR
+var csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSirc72J0b4FoMgiy5JsMmgqUOyFU70LjKYgIeDCdksXkfrbaPYNzEsYUynPxGqix7hS-b9EoZ_W9i1/pub?gid=1809220596&single=true&output=csv";
+
+fetch(csvUrl)
+  .then(r => r.text())
+  .then(csv => {
+    var rows = csv.split("\n").slice(1);
+
+    rows.forEach(row => {
+      var c = row.split(",");
+      if (c.length < 5) return;
+
+      var tur = c[0];
+      var yer = c[2];
+      var lat = parseFloat(c[3]);
+      var lon = parseFloat(c[4]);
+
+      if (isNaN(lat) || isNaN(lon)) return;
+
+      var yeniKonum = denizeKaydir(lat, lon);
+
+      L.circleMarker(yeniKonum, {
+        radius: 6,
+        color: renk(tur),
+        fillColor: renk(tur),
+        fillOpacity: 0.8
+      })
+      .bindPopup("<b>" + tur + "</b><br>" + yer)
+      .addTo(map);
+    });
+  });
+</script>
+
+</body>
+</html>
