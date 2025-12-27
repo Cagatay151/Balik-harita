@@ -58,17 +58,18 @@ function renk(tur) {
   return "blue";
 }
 
-// 🌊 Kıyıdan 10–50 metre deniz içine otomatik kaydırma
+// 🌊 Kıyıdan 10–50 metre deniz içine otomatik kaydırma (daha doğru)
 function denizeKaydir(lat, lon) {
   var mesafe = 10 + Math.random() * 40; // metre
-  var aci = 180 + (Math.random() * 40 - 20); // deniz yönü
+  var aci = 180; // doğrudan denize (güney) yönü, isterseniz ±20° ekleyebilirsiniz
+  var R = 6378137; // Dünya yarıçapı metre cinsinden
 
-  var dLat = (mesafe * Math.cos(aci * Math.PI / 180)) / 111320;
-  var dLon = (mesafe * Math.sin(aci * Math.PI / 180)) /
-             (111320 * Math.cos(lat * Math.PI / 180));
+  var dLat = (mesafe * Math.cos(aci * Math.PI / 180)) / R;
+  var dLon = (mesafe * Math.sin(aci * Math.PI / 180)) / (R * Math.cos(lat * Math.PI / 180));
 
-  return [lat + dLat, lon + dLon];
+  return [lat + (dLat * 180 / Math.PI), lon + (dLon * 180 / Math.PI)];
 }
+
 
 // 🔗 GOOGLE SHEETS CSV LİNKİNİ BURAYA YAPIŞTIR
 var csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSirc72J0b4FoMgiy5JsMmgqUOyFU70LjKYgIeDCdksXkfrbaPYNzEsYUynPxGqix7hS-b9EoZ_W9i1/pub?gid=1809220596&single=true&output=csv";
@@ -105,3 +106,4 @@ fetch(csvUrl)
 
 </body>
 </html>
+
