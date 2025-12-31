@@ -87,7 +87,7 @@
   const derece = metre / 111000;
 
   // -90° ile +90° arası (denize doğru yelpaze)
-  const aci = (Math.random() * 180 - 90) * Math.PI / 180;
+  const aci = Math.random() * 180 - 90) * Math.PI / 180;
 
   const dLat = Math.cos(aci) * derece;
   const dLon = Math.sin(aci) * derece;
@@ -159,5 +159,6 @@
 
 </body>
 </html>
+
 
 
