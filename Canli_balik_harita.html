@@ -78,9 +78,27 @@
   }
 
   /* KIYIDAN 10–300 m DENİZE KAYDIR */
-  function denizeKaydir(lat, lon) {
-    const min = 10;
-    const max = 300;
+ function denizeKaydir(lat, lon) {
+  // metre
+  const min = 100;
+  const max = 500;
+
+  const metre = Math.random() * (max - min) + min;
+  const derece = metre / 111000;
+
+  // -90° ile +90° arası (denize doğru yelpaze)
+  const aci = (Math.random() * 180 - 90) * Math.PI / 180;
+
+  const dLat = Math.cos(aci) * derece;
+  const dLon = Math.sin(aci) * derece;
+
+  // Akdeniz: deniz genelde güney ağırlıklı
+  return [
+    lat - Math.abs(dLat),
+    lon + dLon
+  ];
+}
+;
 
     const metre = Math.random() * (max - min) + min;
     const derece = metreToDegree(metre);
@@ -141,4 +159,5 @@
 
 </body>
 </html>
+
 
