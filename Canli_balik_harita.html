@@ -1,112 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-<meta charset="utf-8" />
-<title>Canlı Balık Haritası</title>
+  <meta charset="UTF-8">
+  <title>Canlı Balık Haritası</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Leaflet -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<style>
-  body, html { margin: 0; padding: 0; }
-  #map { height: 100vh; width: 100%; }
+  <!-- CSV okuyucu -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  .legend {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background: white;
-    padding: 10px;
-    font-size: 14px;
-    border-radius: 6px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
-  }
-  .legend span {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    margin-right: 6px;
-    border-radius: 50%;
-  }
-</style>
+  <style>
+    html, body, #map {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    /* LEJANT */
+    .legend {
+      background: white;
+      padding: 10px;
+      line-height: 18px;
+      color: #333;
+      font-size: 13px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      border-radius: 5px;
+    }
+
+    .legend h4 {
+      margin: 0 0 6px 0;
+      font-size: 14px;
+    }
+
+    .legend span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      margin-right: 6px;
+      vertical-align: middle;
+      border-radius: 50%;
+    }
+  </style>
 </head>
 
 <body>
 
 <div id="map"></div>
 
-<div class="legend">
-  <div><span style="background:red"></span> Balon Balığı</div>
-  <div><span style="background:orange"></span> Aslan Balığı</div>
-  <div><span style="background:purple"></span> Sokar Balığı</div>
-  <div><span style="background:blue"></span> Diğer Türler</div>
-</div>
-
 <script>
-// 🗺️ Harita
-var map = L.map('map').setView([36.3067, 30.1467], 14);
+  /* HARİTA */
+  const map = L.map("map").setView([36.5, 30.0], 9);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '© OpenStreetMap'
-}).addTo(map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "© OpenStreetMap"
+  }).addTo(map);
 
-// 🎨 Türlere göre renk
-function renk(tur) {
-  if (tur === "Balon Balığı") return "red";
-  if (tur === "Aslan Balığı") return "orange";
-  if (tur === "Sokar Balığı") return "purple";
-  return "blue";
-}
+  /* TÜR RENKLERİ */
+  function renk(tur) {
+    if (!tur) return "gray";
+    tur = tur.toLowerCase();
 
-// 🌊 Kıyıdan 10–50 metre deniz içine otomatik kaydırma (daha doğru)
-function denizeKaydir(lat, lon) {
-  // 10–50 metre
-  var mesafe = 10 + Math.random() * 40;
+    if (tur.includes("balon")) return "red";
+    if (tur.includes("aslan")) return "orange";
+    if (tur.includes("sokar")) return "purple";
 
-  // Finike kıyısı için deniz yönü = GÜNEY
-  var aci = 180;
+    return "blue";
+  }
 
-  var dLat = (mesafe / 111320);
-  var dLon = 0;
+  /* METRE → DERECE */
+  function metreToDegree(m) {
+    return m / 111000;
+  }
 
-  return [lat - dLat, lon];
-}
+  /* KIYIDAN 10–300 m DENİZE KAYDIR */
+  function denizeKaydir(lat, lon) {
+    const min = 10;
+    const max = 300;
 
-// 🔗 GOOGLE SHEETS CSV LİNKİNİ BURAYA YAPIŞTIR
-var csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNlPn-37eDEwJHvLmp2Ed-uEZ0J3YDkMavOHv-fSLQfXHhuMlkMntf2WSZKuwOeWwCGBrawKimHGbE/pub?gid=88890813&single=true&output=csv";
+    const metre = Math.random() * (max - min) + min;
+    const derece = metreToDegree(metre);
 
-fetch(csvUrl)
-  .then(r => r.text())
-  .then(csv => {
-    var rows = csv.split("\n").slice(1);
+    // Akdeniz için güney yönü
+    const yeniLat = lat - derece;
+    const yeniLon = lon + (Math.random() - 0.5) * derece;
 
-    rows.forEach(row => {
-      var c = row.split(",");
-      if (c.length < 5) return;
+    return [yeniLat, yeniLon];
+  }
 
-      var tur = c[0];
-      var yer = c[2];
-      var lat = parseFloat(c[3]);
-      var lon = parseFloat(c[4]);
+  /* CSV OKU */
+  Papa.parse("180_balik.csv", {
+    download: true,
+    header: true,
+    complete: function (results) {
+      results.data.forEach(row => {
+        const lat = parseFloat(row.enlem);
+        const lon = parseFloat(row.boylam);
 
-      if (isNaN(lat) || isNaN(lon)) return;
+        if (isNaN(lat) || isNaN(lon)) return;
 
-      var yeniKonum = denizeKaydir(lat, lon);
+        const [yLat, yLon] = denizeKaydir(lat, lon);
 
-      L.circleMarker(yeniKonum, {
-        radius: 6,
-        color: renk(tur),
-        fillColor: renk(tur),
-        fillOpacity: 0.8
-      })
-      .bindPopup("<b>" + tur + "</b><br>" + yer)
-      .addTo(map);
-    });
+        L.circleMarker([yLat, yLon], {
+          radius: 6,
+          color: renk(row.tur),
+          fillColor: renk(row.tur),
+          fillOpacity: 0.8
+        })
+        .bindPopup(`
+          <b>${row.tur}</b><br>
+          Enlem: ${yLat.toFixed(6)}<br>
+          Boylam: ${yLon.toFixed(6)}
+        `)
+        .addTo(map);
+      });
+    }
   });
+
+  /* LEJANT */
+  const legend = L.control({ position: "bottomright" });
+
+  legend.onAdd = function () {
+    const div = L.DomUtil.create("div", "legend");
+    div.innerHTML = `
+      <h4>Balık Türleri</h4>
+      <div><span style="background:red"></span> Balon Balığı</div>
+      <div><span style="background:orange"></span> Aslan Balığı</div>
+      <div><span style="background:purple"></span> Sokar Balığı</div>
+      <div><span style="background:blue"></span> Diğer Türler</div>
+    `;
+    return div;
+  };
+
+  legend.addTo(map);
 </script>
 
 </body>
 </html>
-
-
-
