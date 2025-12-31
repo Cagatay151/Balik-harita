@@ -26,83 +26,58 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-
-// HARİTA
 const map = L.map("map").setView([36.5, 30.5], 8);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18
 }).addTo(map);
 
-// METRE → DERECE
 function metreToDegree(m) {
   return m / 111000;
 }
 
-// KIYIDAN 10–300 m DENİZE KAYDIR
 function denizeKaydir(lat, lon) {
-  const min = 10;
-  const max = 300;
-
-  const metre = Math.random() * (max - min) + min;
+  const metre = Math.random() * (300 - 10) + 10;
   const derece = metreToDegree(metre);
-
   const aci = (Math.random() * 180 - 90) * Math.PI / 180;
 
   const dLat = Math.cos(aci) * derece;
   const dLon = Math.sin(aci) * derece;
 
-  return [
-    lat - Math.abs(dLat), // güneye (denize)
-    lon + dLon
-  ];
+  return [lat - Math.abs(dLat), lon + dLon];
 }
 
-// CSV OKU
 fetch("2.csv")
-  .then(res => res.text())
-  .then(text => {
-    const rows = text.split("\n").slice(1);
+.then(res => res.text())
+.then(text => {
+  const rows = text.trim().split("\n").slice(1);
 
-    rows.forEach(r => {
-      if (!r.trim()) return;
+  rows.forEach(line => {
+    const parts = line.split(";");
+    if (parts.length < 3) return;
 
-      const [tur, lat, lon] = r.split(";");
+    const tur = parts[0];
+    const lat = parseFloat(parts[1]);
+    const lon = parseFloat(parts[2]);
 
-      if (!lat || !lon) return;
+    if (isNaN(lat) || isNaN(lon)) return;
 
-      const yeni = denizeKaydir(parseFloat(lat), parseFloat(lon));
+    const yeni = denizeKaydir(lat, lon);
 
-      let renk = "gray";
-      if (tur.includes("Balon")) renk = "red";
-      if (tur.includes("Aslan")) renk = "orange";
-      if (tur.includes("Sokar")) renk = "blue";
+    let renk = "gray";
+    if (tur.includes("Balon")) renk = "red";
+    if (tur.includes("Aslan")) renk = "orange";
+    if (tur.includes("Sokar")) renk = "blue";
 
-      L.circleMarker(yeni, {
-        radius: 6,
-        color: renk,
-        fillColor: renk,
-        fillOpacity: 0.8
-      }).addTo(map).bindPopup(tur);
-    });
+    L.circleMarker(yeni, {
+      radius: 6,
+      color: renk,
+      fillColor: renk,
+      fillOpacity: 0.8
+    }).addTo(map);
   });
-
-// LEJANT
-const legend = L.control({position: "bottomright"});
-legend.onAdd = function () {
-  const div = L.DomUtil.create("div", "legend");
-  div.innerHTML = `
-    <b>Balık Türleri</b><br>
-    <span style="color:red">●</span> Balon Balığı<br>
-    <span style="color:orange">●</span> Aslan Balığı<br>
-    <span style="color:blue">●</span> Sokar Balığı<br>
-    <span style="color:gray">●</span> Diğer
-  `;
-  return div;
-};
-legend.addTo(map);
-
+});
 </script>
-
 </body>
 </html>
+
