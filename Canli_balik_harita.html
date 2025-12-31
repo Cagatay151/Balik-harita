@@ -32,20 +32,16 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18
 }).addTo(map);
 
-function metreToDegree(m) {
-  return m / 111000;
-}
-
 function denizeKaydir(lat, lon) {
   // 100 – 750 metre
-  const metre = Math.random() * (1000 - 750) + 750;
+  const metre = Math.random() * (750 - 100) + 100;
   const derece = metre / 111000;
 
-  // Akdeniz için deniz yönü (güney – güneydoğu)
-  const aci = (Math.random() * 120 + 150) * Math.PI / 180;
+  // ENLEM: her zaman GÜNEYE
+  const dLat = -Math.abs(derece);
 
-  const dLat = Math.cos(aci) * derece;
-  const dLon = Math.sin(aci) * derece;
+  // BOYLAM: sağa-sola rastgele (deniz içinde yayılma)
+  const dLon = (Math.random() - 0.5) * derece * 2;
 
   return [
     lat + dLat,
@@ -87,6 +83,7 @@ fetch("2.csv")
 </script>
 </body>
 </html>
+
 
 
 
