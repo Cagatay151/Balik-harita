@@ -34,13 +34,13 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 function denizeKaydir(lat, lon) {
   // 100 – 750 metre
-  const metre = Math.random() * (750 - 749) + 749;
+  const metre = Math.random() * (750 - 100) + 100;
   const derece = metre / 111000;
 
-  // ENLEM: her zaman GÜNEYE
-  const dLat = -Math.abs(derece);
+  // ENLEM: her balık için farklı miktarda GÜNEYE
+  const dLat = -derece;
 
-  // BOYLAM: sağa-sola rastgele (deniz içinde yayılma)
+  // BOYLAM: sağa–sola rastgele yay
   const dLon = (Math.random() - 0.5) * derece * 2;
 
   return [
@@ -83,6 +83,7 @@ fetch("2.csv")
 </script>
 </body>
 </html>
+
 
 
 
