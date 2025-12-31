@@ -60,16 +60,17 @@ function renk(tur) {
 
 // 🌊 Kıyıdan 10–50 metre deniz içine otomatik kaydırma (daha doğru)
 function denizeKaydir(lat, lon) {
-  var mesafe = 10 + Math.random() * 40; // metre
-  var aci = 180; // doğrudan denize (güney) yönü, isterseniz ±20° ekleyebilirsiniz
-  var R = 6378137; // Dünya yarıçapı metre cinsinden
+  // 10–50 metre
+  var mesafe = 10 + Math.random() * 40;
 
-  var dLat = (mesafe * Math.cos(aci * Math.PI / 180)) / R;
-  var dLon = (mesafe * Math.sin(aci * Math.PI / 180)) / (R * Math.cos(lat * Math.PI / 180));
+  // Finike kıyısı için deniz yönü = GÜNEY
+  var aci = 180;
 
-  return [lat + (dLat * 180 / Math.PI), lon + (dLon * 180 / Math.PI)];
+  var dLat = (mesafe / 111320);
+  var dLon = 0;
+
+  return [lat - dLat, lon];
 }
-
 
 // 🔗 GOOGLE SHEETS CSV LİNKİNİ BURAYA YAPIŞTIR
 var csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNlPn-37eDEwJHvLmp2Ed-uEZ0J3YDkMavOHv-fSLQfXHhuMlkMntf2WSZKuwOeWwCGBrawKimHGbE/pub?gid=88890813&single=true&output=csv";
@@ -106,5 +107,6 @@ fetch(csvUrl)
 
 </body>
 </html>
+
 
 
