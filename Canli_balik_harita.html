@@ -34,7 +34,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 function denizeKaydir(lat, lon) {
   // 100 – 750 metre
-  const metre = Math.random() * (750 - 100) + 100;
+  const metre = Math.random() * (750 - 50) + 50;
   const derece = metre / 111000;
 
   // ENLEM: her balık için farklı miktarda GÜNEYE
@@ -83,6 +83,7 @@ fetch("2.csv")
 </script>
 </body>
 </html>
+
 
 
 
