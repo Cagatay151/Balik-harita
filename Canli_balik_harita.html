@@ -37,15 +37,23 @@ function metreToDegree(m) {
 }
 
 function denizeKaydir(lat, lon) {
-  const metre = Math.random() * (300 - 10) + 10;
-  const derece = metreToDegree(metre);
-  const aci = (Math.random() * 180 - 90) * Math.PI / 180;
+  // 10–500 metre
+  const metre = Math.random() * (500 - 10) + 10;
+  const derece = metre / 111000;
+
+  // Akdeniz kıyıları için deniz yönü: GÜNEY + DOĞU AĞIRLIKLI
+  const aci = (Math.random() * 120 + 150) * Math.PI / 180;
+  // 150° – 270° arası → deniz yönü
 
   const dLat = Math.cos(aci) * derece;
   const dLon = Math.sin(aci) * derece;
 
-  return [lat - Math.abs(dLat), lon + dLon];
+  return [
+    lat + dLat,
+    lon + dLon
+  ];
 }
+
 
 fetch("2.csv")
 .then(res => res.text())
@@ -80,4 +88,5 @@ fetch("2.csv")
 </script>
 </body>
 </html>
+
 
