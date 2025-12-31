@@ -1,164 +1,108 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Canlı Balık Haritası</title>
+<meta charset="UTF-8">
+<title>Canlı Balık Haritası</title>
 
-  <!-- Leaflet -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
-  <!-- CSV okuyucu -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-  <style>
-    html, body, #map {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-    }
-
-    /* LEJANT */
-    .legend {
-      background: white;
-      padding: 10px;
-      line-height: 18px;
-      color: #333;
-      font-size: 13px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      border-radius: 5px;
-    }
-
-    .legend h4 {
-      margin: 0 0 6px 0;
-      font-size: 14px;
-    }
-
-    .legend span {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      margin-right: 6px;
-      vertical-align: middle;
-      border-radius: 50%;
-    }
-  </style>
+<style>
+  #map { height: 100vh; }
+  .legend {
+    background: white;
+    padding: 10px;
+    line-height: 18px;
+    font-size: 14px;
+  }
+</style>
 </head>
 
 <body>
 
 <div id="map"></div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-  /* HARİTA */
-  const map = L.map("map").setView([36.5, 30.0], 9);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "© OpenStreetMap"
-  }).addTo(map);
+// HARİTA
+const map = L.map("map").setView([36.5, 30.5], 8);
 
-  /* TÜR RENKLERİ */
-  function renk(tur) {
-    if (!tur) return "gray";
-    tur = tur.toLowerCase();
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 18
+}).addTo(map);
 
-    if (tur.includes("balon")) return "red";
-    if (tur.includes("aslan")) return "orange";
-    if (tur.includes("sokar")) return "purple";
+// METRE → DERECE
+function metreToDegree(m) {
+  return m / 111000;
+}
 
-    return "blue";
-  }
-
-  /* METRE → DERECE */
-  function metreToDegree(m) {
-    return m / 111000;
-  }
-
-  /* KIYIDAN 10–300 m DENİZE KAYDIR */
- function denizeKaydir(lat, lon) {
-  // metre
-  const min = 100;
-  const max = 500;
+// KIYIDAN 10–300 m DENİZE KAYDIR
+function denizeKaydir(lat, lon) {
+  const min = 10;
+  const max = 300;
 
   const metre = Math.random() * (max - min) + min;
-  const derece = metre / 111000;
+  const derece = metreToDegree(metre);
 
-  // -90° ile +90° arası (denize doğru yelpaze)
-  const aci = Math.random() * 180 - 90) * Math.PI / 180;
+  const aci = (Math.random() * 180 - 90) * Math.PI / 180;
 
   const dLat = Math.cos(aci) * derece;
   const dLon = Math.sin(aci) * derece;
 
-  // Akdeniz: deniz genelde güney ağırlıklı
   return [
-    lat - Math.abs(dLat),
+    lat - Math.abs(dLat), // güneye (denize)
     lon + dLon
   ];
 }
-;
 
-    const metre = Math.random() * (max - min) + min;
-    const derece = metreToDegree(metre);
+// CSV OKU
+fetch("2.csv")
+  .then(res => res.text())
+  .then(text => {
+    const rows = text.split("\n").slice(1);
 
-    // Akdeniz için güney yönü
-    const yeniLat = lat - derece;
-    const yeniLon = lon + (Math.random() - 0.5) * derece;
+    rows.forEach(r => {
+      if (!r.trim()) return;
 
-    return [yeniLat, yeniLon];
-  }
+      const [tur, lat, lon] = r.split(";");
 
-  /* CSV OKU */
-  Papa.parse("2.csv", {
-    download: true,
-    header: true,
-    complete: function (results) {
-      results.data.forEach(row => {
-        const lat = parseFloat(row.enlem);
-        const lon = parseFloat(row.boylam);
+      if (!lat || !lon) return;
 
-        if (isNaN(lat) || isNaN(lon)) return;
+      const yeni = denizeKaydir(parseFloat(lat), parseFloat(lon));
 
-        const [yLat, yLon] = denizeKaydir(lat, lon);
+      let renk = "gray";
+      if (tur.includes("Balon")) renk = "red";
+      if (tur.includes("Aslan")) renk = "orange";
+      if (tur.includes("Sokar")) renk = "blue";
 
-        L.circleMarker([yLat, yLon], {
-          radius: 6,
-          color: renk(row.tur),
-          fillColor: renk(row.tur),
-          fillOpacity: 0.8
-        })
-        .bindPopup(`
-          <b>${row.tur}</b><br>
-          Enlem: ${yLat.toFixed(6)}<br>
-          Boylam: ${yLon.toFixed(6)}
-        `)
-        .addTo(map);
-      });
-    }
+      L.circleMarker(yeni, {
+        radius: 6,
+        color: renk,
+        fillColor: renk,
+        fillOpacity: 0.8
+      }).addTo(map).bindPopup(tur);
+    });
   });
 
-  /* LEJANT */
-  const legend = L.control({ position: "bottomright" });
+// LEJANT
+const legend = L.control({position: "bottomright"});
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "legend");
+  div.innerHTML = `
+    <b>Balık Türleri</b><br>
+    <span style="color:red">●</span> Balon Balığı<br>
+    <span style="color:orange">●</span> Aslan Balığı<br>
+    <span style="color:blue">●</span> Sokar Balığı<br>
+    <span style="color:gray">●</span> Diğer
+  `;
+  return div;
+};
+legend.addTo(map);
 
-  legend.onAdd = function () {
-    const div = L.DomUtil.create("div", "legend");
-    div.innerHTML = `
-      <h4>Balık Türleri</h4>
-      <div><span style="background:red"></span> Balon Balığı</div>
-      <div><span style="background:orange"></span> Aslan Balığı</div>
-      <div><span style="background:purple"></span> Sokar Balığı</div>
-      <div><span style="background:blue"></span> Diğer Türler</div>
-    `;
-    return div;
-  };
-
-  legend.addTo(map);
 </script>
 
 </body>
 </html>
-
-
-
