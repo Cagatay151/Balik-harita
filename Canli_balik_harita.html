@@ -37,13 +37,12 @@ function metreToDegree(m) {
 }
 
 function denizeKaydir(lat, lon) {
-  // 10–500 metre
-  const metre = Math.random() * (500 - 10) + 10;
+  // 100 – 750 metre
+  const metre = Math.random() * (750 - 100) + 100;
   const derece = metre / 111000;
 
-  // Akdeniz kıyıları için deniz yönü: GÜNEY + DOĞU AĞIRLIKLI
+  // Akdeniz için deniz yönü (güney – güneydoğu)
   const aci = (Math.random() * 120 + 150) * Math.PI / 180;
-  // 150° – 270° arası → deniz yönü
 
   const dLat = Math.cos(aci) * derece;
   const dLon = Math.sin(aci) * derece;
@@ -88,5 +87,6 @@ fetch("2.csv")
 </script>
 </body>
 </html>
+
 
 
