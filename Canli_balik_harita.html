@@ -26,6 +26,13 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
+  let seed = 12345;
+
+function seededRandom() {
+  seed = (seed * 9301 + 49297) % 233280;
+  return seed / 233280;
+}
+
 const map = L.map("map").setView([36.5, 30.5], 8);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -33,22 +40,21 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 function denizeKaydir(lat, lon) {
-  // 100 – 750 metre
-  const metre = Math.random() * (750 - 250) + 250;
+  // 100 – 750 metre (seed'li)
+  const metre = seededRandom() * (750 - 100) + 100;
   const derece = metre / 111000;
 
-  // ENLEM: her balık için farklı miktarda GÜNEYE
+  // Her zaman güneye
   const dLat = -derece;
 
-  // BOYLAM: sağa–sola rastgele yay
-  const dLon = (Math.random() - 0.5) * derece * 2;
+  // Sağa-sola yayılım (seed'li)
+  const dLon = (seededRandom() - 0.5) * derece * 2;
 
   return [
     lat + dLat,
     lon + dLon
   ];
 }
-
 
 fetch("2.csv")
 .then(res => res.text())
@@ -83,6 +89,7 @@ fetch("2.csv")
 </script>
 </body>
 </html>
+
 
 
 
