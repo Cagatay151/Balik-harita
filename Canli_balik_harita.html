@@ -55,23 +55,6 @@ function denizeKaydir(lat, lon) {
 
 
 fetch("2.csv")
-const legend = L.control({ position: "bottomright" });
-
-legend.onAdd = function () {
-  const div = L.DomUtil.create("div", "legend");
-  div.innerHTML = `
-    <b>Balık Türleri</b><br>
-    <span style="color:red;font-size:18px;">●</span> Balon Balığı<br>
-    <span style="color:orange;font-size:18px;">●</span> Aslan Balığı<br>
-    <span style="color:blue;font-size:18px;">●</span> Sokar Balığı<br>
-    <span style="color:gray;font-size:18px;">●</span> Diğer Türler
-  `;
-  return div;
-};
-
-legend.addTo(map);
-
-
 .then(res => res.text())
 .then(text => {
   const rows = text.trim().split("\n").slice(1);
@@ -101,9 +84,27 @@ legend.addTo(map);
     }).addTo(map);
   });
 });
+
+  const legend = L.control({ position: "bottomright" });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "legend");
+  div.innerHTML = `
+    <b>Balık Türleri</b><br>
+    <span style="color:red;font-size:18px;">●</span> Balon Balığı<br>
+    <span style="color:orange;font-size:18px;">●</span> Aslan Balığı<br>
+    <span style="color:blue;font-size:18px;">●</span> Sokar Balığı<br>
+    <span style="color:gray;font-size:18px;">●</span> Diğer Türler
+  `;
+  return div;
+};
+
+legend.addTo(map);
+
 </script>
 </body>
 </html>
+
 
 
 
