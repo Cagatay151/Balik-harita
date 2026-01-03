@@ -8,15 +8,19 @@
   rel="stylesheet"
   href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 />
-
 <style>
-  #map { height: 100vh; }
-  .legend {
-    background: white;
-    padding: 10px;
-    line-height: 18px;
-    font-size: 14px;
-  }
+#map {
+  height: 100vh;
+}
+
+.leaflet-control.legend {
+  background: white;
+  padding: 10px;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  font-size: 14px;
+  line-height: 18px;
+}
 </style>
 </head>
 
@@ -51,6 +55,22 @@ function denizeKaydir(lat, lon) {
 
 
 fetch("2.csv")
+  const legend = L.control({ position: "bottomright" });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "legend");
+  div.innerHTML = `
+    <b>Balık Türleri</b><br>
+    <span style="color:red;font-size:18px;">●</span> Balon Balığı<br>
+    <span style="color:orange;font-size:18px;">●</span> Aslan Balığı<br>
+    <span style="color:blue;font-size:18px;">●</span> Sokar Balığı<br>
+    <span style="color:gray;font-size:18px;">●</span> Diğer Türler
+  `;
+  return div;
+};
+
+legend.addTo(map);
+
 .then(res => res.text())
 .then(text => {
   const rows = text.trim().split("\n").slice(1);
@@ -83,6 +103,7 @@ fetch("2.csv")
 </script>
 </body>
 </html>
+
 
 
 
