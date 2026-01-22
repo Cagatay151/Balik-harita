@@ -35,24 +35,36 @@ const map = L.map("map").setView([36.5, 30.5], 8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18
 }).addTo(map);
+  
+  function karadaMi(lat) {
+  // Antalya–Finike hattı için yaklaşık kıyı referansı
+  // Bu değerin KUZEYİ genelde kara
+  const kiyienlem = 36.85;
+
+  return lat > kiyienlem;
+}
 
 function denizeKaydir(lat, lon) {
-  // 100 – 750 metre
-  const metre = Math.random() * (1500 - 500) + 500;
+
+  // Eğer zaten denizdeyse → DOKUNMA
+  if (!karadaMi(lat)) {
+    return [lat, lon];
+  }
+
+  // Karadaysa → denize kaydır
+  const metre = Math.random() * (300 - 80) + 80; // 80–300 m
   const derece = metre / 111000;
 
-  // ENLEM: her balık için farklı miktarda GÜNEYE
-  const dLat = -derece;
+  const aci = Math.random() * 2 * Math.PI;
 
-  // BOYLAM: sağa–sola rastgele yay
-  const dLon = (Math.random() - 0.5) * derece * 2;
+  const dLat = Math.sin(aci) * derece * -1; // güneye ağırlık
+  const dLon = Math.cos(aci) * derece;
 
   return [
     lat + dLat,
     lon + dLon
   ];
 }
-
 
 fetch("2.csv")
 .then(res => res.text())
@@ -104,6 +116,7 @@ legend.addTo(map);
 </script>
 </body>
 </html>
+
 
 
 
