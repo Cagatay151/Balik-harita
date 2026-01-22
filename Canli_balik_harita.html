@@ -9,9 +9,7 @@
   href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 />
 <style>
-#map {
-  height: 100vh;
-}
+#map { height: 100vh; }
 
 .leaflet-control.legend {
   background: white;
@@ -22,6 +20,9 @@
   line-height: 18px;
 }
 </style>
+
+<!-- Turf.js ekliyoruz -->
+<script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
 </head>
 
 <body>
@@ -35,37 +36,50 @@ const map = L.map("map").setView([36.5, 30.5], 8);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 18
 }).addTo(map);
-  
-  function karadaMi(lat) {
-  // Antalya–Finike hattı için yaklaşık kıyı referansı
-  // Bu değerin KUZEYİ genelde kara
-  const kiyienlem = 36.85;
 
-  return lat > kiyienlem;
-}
+/* ============================= */
+/* Kara poligonu (simplified örnek) */
+const landGeoJSON = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [29.9, 36.0],
+          [31.0, 36.0],
+          [31.0, 37.5],
+          [29.9, 37.5],
+          [29.9, 36.0]
+        ]]
+      }
+    }
+  ]
+};
 
-function denizeKaydir(lat, lon) {
+/* ============================= */
+/* Turf.js destekli denize kaydırma */
+function denizeKaydirTurf(lat, lon) {
+  let point = turf.point([lon, lat]);
+  const karada = turf.booleanPointInPolygon(point, landGeoJSON.features[0]);
 
-  // Eğer zaten denizdeyse → DOKUNMA
-  if (!karadaMi(lat)) {
-    return [lat, lon];
-  }
+  if (!karada) return [lat, lon]; // Zaten denizdeyse dokunma
 
-  // Karadaysa → denize kaydır
-  const metre = Math.random() * (750 - 100) + 100; // 80–300 m
+  // Karadaysa denize kaydır
+  const metre = Math.random() * (300 - 80) + 80;
   const derece = metre / 111000;
-
   const aci = Math.random() * 2 * Math.PI;
 
-  const dLat = Math.sin(aci) * derece * -1; // güneye ağırlık
+  const dLat = Math.sin(aci) * derece;
   const dLon = Math.cos(aci) * derece;
 
-  return [
-    lat + dLat,
-    lon + dLon
-  ];
+  return [lat + dLat, lon + dLon];
 }
 
+/* ============================= */
+/* CSV’den marker ekleme */
 fetch("2.csv")
 .then(res => res.text())
 .then(text => {
@@ -78,10 +92,9 @@ fetch("2.csv")
     const tur = parts[0];
     const lat = parseFloat(parts[1]);
     const lon = parseFloat(parts[2]);
-
     if (isNaN(lat) || isNaN(lon)) return;
 
-    const yeni = denizeKaydir(lat, lon);
+    const yeni = denizeKaydirTurf(lat, lon);
 
     let renk = "gray";
     if (tur.includes("Balon")) renk = "red";
@@ -97,8 +110,9 @@ fetch("2.csv")
   });
 });
 
-  const legend = L.control({ position: "bottomright" });
-
+/* ============================= */
+/* Legend */
+const legend = L.control({ position: "bottomright" });
 legend.onAdd = function () {
   const div = L.DomUtil.create("div", "legend");
   div.innerHTML = `
@@ -110,34 +124,8 @@ legend.onAdd = function () {
   `;
   return div;
 };
-
 legend.addTo(map);
 
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
