@@ -1,230 +1,192 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8" />
 <title>Canlı Balık Haritası</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
 <style>
-  #map { height: 100vh; width: 100vw; }
+  #map {
+    height: 100vh;
+    width: 100%;
+  }
+
+  .legend {
+    background: white;
+    padding: 10px;
+    font-size: 14px;
+    line-height: 20px;
+    border-radius: 8px;
+  }
+
+  .legend i {
+    width: 14px;
+    height: 14px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.9;
+  }
 </style>
 </head>
-<body>
 
+<body>
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-  // Haritayı oluştur
-  const map = L.map('map').setView([36.85, 30.80], 10);
+/* ================= HARİTA ================= */
+const map = L.map("map").setView([36.75, 30.75], 9);
 
-  // Harita katmanı (OpenStreetMap)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap'
-  }).addTo(map);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; OpenStreetMap"
+}).addTo(map);
 
-  // Balık verileri (CSV’den dönüştürüldü)
-  const baliklar = [
-    {tur:"Aslan Balığı", enlem:36.845670, boylam:30.791230},
-    {tur:"Aslan Balığı", enlem:36.847890, boylam:30.801230},
-    {tur:"Aslan Balığı", enlem:36.848560, boylam:30.808900},
-    {tur:"Aslan Balığı", enlem:36.849120, boylam:30.815670},
-    {tur:"Aslan Balığı", enlem:36.846780, boylam:30.821230},
-    {tur:"Aslan Balığı", enlem:36.851230, boylam:30.828900},
-    {tur:"Aslan Balığı", enlem:36.853450, boylam:30.835670},
-    {tur:"Aslan Balığı", enlem:36.850120, boylam:30.841230},
-    {tur:"Aslan Balığı", enlem:36.854560, boylam:30.848900},
-    {tur:"Aslan Balığı", enlem:36.852340, boylam:30.855670},
-    {tur:"Aslan Balığı", enlem:36.856780, boylam:30.861230},
-    {tur:"Aslan Balığı", enlem:36.853450, boylam:30.868900},
-    {tur:"Aslan Balığı", enlem:36.855670, boylam:30.875670},
-    {tur:"Aslan Balığı", enlem:36.851230, boylam:30.881230},
-    {tur:"Aslan Balığı", enlem:36.854320, boylam:30.888900},
-    {tur:"Aslan Balığı", enlem:36.849870, boylam:30.895670},
-    {tur:"Aslan Balığı", enlem:36.852100, boylam:30.901230},
-    {tur:"Aslan Balığı", enlem:36.848900, boylam:30.908900},
-    {tur:"Aslan Balığı", enlem:36.850560, boylam:30.915670},
-    {tur:"Aslan Balığı", enlem:36.847650, boylam:30.921230},
-    {tur:"Aslan Balığı", enlem:36.849320, boylam:30.928900},
-    {tur:"Aslan Balığı", enlem:36.846540, boylam:30.935670},
-    {tur:"Aslan Balığı", enlem:36.850120, boylam:30.941230},
-    {tur:"Aslan Balığı", enlem:36.844560, boylam:30.812340},
-    {tur:"Aslan Balığı", enlem:36.842340, boylam:30.825670},
-    {tur:"Aslan Balığı", enlem:36.848900, boylam:30.832100},
-    {tur:"Aslan Balığı", enlem:36.851230, boylam:30.864320},
-    {tur:"Aslan Balığı", enlem:36.853450, boylam:30.892340},
-    {tur:"Aslan Balığı", enlem:36.845670, boylam:30.918900},
-    {tur:"Aslan Balığı", enlem:36.843210, boylam:30.932100},
-    {tur:"Aslan Balığı", enlem:36.841230, boylam:30.795670},
-    {tur:"Aslan Balığı", enlem:36.839870, boylam:30.805430},
-    {tur:"Aslan Balığı", enlem:36.835670, boylam:30.815670},
-    {tur:"Aslan Balığı", enlem:36.861230, boylam:30.852340},
-    {tur:"Aslan Balığı", enlem:36.865430, boylam:30.871230},
-    {tur:"Aslan Balığı", enlem:36.858900, boylam:30.885670},
-    {tur:"Aslan Balığı", enlem:36.862340, boylam:30.905430},
-    {tur:"Aslan Balığı", enlem:36.840120, boylam:30.945670},
-    {tur:"Aslan Balığı", enlem:36.838900, boylam:30.925670},
-    {tur:"Aslan Balığı", enlem:36.845430, boylam:30.882340},
-    {tur:"Aslan Balığı", enlem:36.847650, boylam:30.858900},
-    {tur:"Aslan Balığı", enlem:36.842340, boylam:30.838900},
-    {tur:"Aslan Balığı", enlem:36.849870, boylam:30.798900},
-    {tur:"Aslan Balığı", enlem:36.855430, boylam:30.912340},
-    {tur:"Aslan Balığı", enlem:36.838760, boylam:30.938900},
-    {tur:"Sokar Balığı", enlem:36.884560, boylam:30.691230},
-    {tur:"Sokar Balığı", enlem:36.882340, boylam:30.688900},
-    {tur:"Sokar Balığı", enlem:36.880120, boylam:30.685670},
-    {tur:"Sokar Balığı", enlem:36.878900, boylam:30.681230},
-    {tur:"Sokar Balığı", enlem:36.876540, boylam:30.675670},
-    {tur:"Sokar Balığı", enlem:36.874320, boylam:30.671230},
-    {tur:"Sokar Balığı", enlem:36.872100, boylam:30.665430},
-    {tur:"Sokar Balığı", enlem:36.869870, boylam:30.658900},
-    {tur:"Sokar Balığı", enlem:36.865430, boylam:30.651230},
-    {tur:"Sokar Balığı", enlem:36.862340, boylam:30.645670},
-    {tur:"Sokar Balığı", enlem:36.858900, boylam:30.638900},
-    {tur:"Sokar Balığı", enlem:36.855670, boylam:30.631230},
-    {tur:"Sokar Balığı", enlem:36.852340, boylam:30.625670},
-    {tur:"Sokar Balığı", enlem:36.848900, boylam:30.618900},
-    {tur:"Sokar Balığı", enlem:36.845670, boylam:30.612340},
-    {tur:"Sokar Balığı", enlem:36.841230, boylam:30.608900},
-    {tur:"Sokar Balığı", enlem:36.838900, boylam:30.605670},
-    {tur:"Sokar Balığı", enlem:36.885670, boylam:30.695430},
-    {tur:"Sokar Balığı", enlem:36.883450, boylam:30.698900},
-    {tur:"Sokar Balığı", enlem:36.881230, boylam:30.701230},
-    {tur:"Sokar Balığı", enlem:36.878900, boylam:30.704560},
-    {tur:"Sokar Balığı", enlem:36.751230, boylam:30.706780},
-    {tur:"Sokar Balığı", enlem:36.874320, boylam:30.708900},
-    {tur:"Sokar Balığı", enlem:36.871230, boylam:30.712340},
-    {tur:"Sokar Balığı", enlem:36.868900, boylam:30.715670},
-    {tur:"Sokar Balığı", enlem:36.865670, boylam:30.718900},
-    {tur:"Sokar Balığı", enlem:36.862340, boylam:30.722340},
-    {tur:"Sokar Balığı", enlem:36.858900, boylam:30.725670},
-    {tur:"Sokar Balığı", enlem:36.855430, boylam:30.728900},
-    {tur:"Sokar Balığı", enlem:36.852100, boylam:30.732340},
-    {tur:"Diğer Türler", enlem:36.865430, boylam:30.681230},
-    {tur:"Diğer Türler", enlem:36.851230, boylam:30.665430},
-    {tur:"Diğer Türler", enlem:36.841230, boylam:30.651230},
-    {tur:"Diğer Türler", enlem:36.651230, boylam:30.581230},
-    {tur:"Diğer Türler", enlem:36.461230, boylam:30.541230},
-    {tur:"Diğer Türler", enlem:36.351230, boylam:30.451230},
-    {tur:"Diğer Türler", enlem:36.271230, boylam:30.251230},
-    {tur:"Diğer Türler", enlem:36.835430, boylam:30.751230},
-    {tur:"Diğer Türler", enlem:36.825670, boylam:30.781230},
-    {tur:"Diğer Türler", enlem:36.815430, boylam:30.851230},
-    {tur:"Diğer Türler", enlem:36.865430, boylam:30.621230},
-    {tur:"Diğer Türler", enlem:36.751230, boylam:30.581230},
-    {tur:"Diğer Türler", enlem:36.681230, boylam:30.571230},
-    {tur:"Diğer Türler", enlem:36.581230, boylam:30.601230},
-    {tur:"Diğer Türler", enlem:36.511230, boylam:30.571230},
-    {tur:"Diğer Türler", enlem:36.431230, boylam:30.511230},
-    {tur:"Diğer Türler", enlem:36.331230, boylam:30.481230},
-    {tur:"Diğer Türler", enlem:36.261230, boylam:30.311230},
-    {tur:"Diğer Türler", enlem:36.241230, boylam:30.381230},
-    {tur:"Diğer Türler", enlem:36.231230, boylam:30.441230},
-    {tur:"Diğer Türler", enlem:36.871230, boylam:30.691230},
-    {tur:"Diğer Türler", enlem:36.855430, boylam:30.711230},
-    {tur:"Diğer Türler", enlem:36.845670, boylam:30.741230},
-    {tur:"Diğer Türler", enlem:36.838900, boylam:30.771230},
-    {tur:"Diğer Türler", enlem:36.831230, boylam:30.791230},
-    {tur:"Balon Balığı", enlem:36.598210, boylam:30.589340},
-    {tur:"Balon Balığı", enlem:36.801230, boylam:30.585670},
-    {tur:"Balon Balığı", enlem:36.794560, boylam:30.578900},
-    {tur:"Balon Balığı", enlem:36.782340, boylam:30.572120},
-    {tur:"Balon Balığı", enlem:36.765430, boylam:30.568450},
-    {tur:"Balon Balığı", enlem:36.758900, boylam:30.564320},
-    {tur:"Balon Balığı", enlem:36.741230, boylam:30.561230},
-    {tur:"Balon Balığı", enlem:36.725670, boylam:30.559870},
-    {tur:"Balon Balığı", enlem:36.605430, boylam:30.571230},
-    {tur:"Balon Balığı", enlem:36.601200, boylam:30.574560},
-    {tur:"Balon Balığı", enlem:36.598760, boylam:30.569800},
-    {tur:"Balon Balığı", enlem:36.582340, boylam:30.583450},
-    {tur:"Balon Balığı", enlem:36.579120, boylam:30.586780},
-    {tur:"Balon Balığı", enlem:36.565430, boylam:30.575670},
-    {tur:"Balon Balığı", enlem:36.551230, boylam:30.562340},
-    {tur:"Balon Balığı", enlem:36.535670, boylam:30.558900},
-    {tur:"Balon Balığı", enlem:36.524560, boylam:30.556780},
-    {tur:"Balon Balığı", enlem:36.512340, boylam:30.548900},
-    {tur:"Balon Balığı", enlem:36.505670, boylam:30.541230},
-    {tur:"Balon Balığı", enlem:36.499800, boylam:30.539870},
-    {tur:"Balon Balığı", enlem:36.495430, boylam:30.545670},
-    {tur:"Balon Balığı", enlem:36.481230, boylam:30.534560},
-    {tur:"Balon Balığı", enlem:36.465670, boylam:30.528900},
-    {tur:"Balon Balığı", enlem:36.451230, boylam:30.515430},
-    {tur:"Balon Balığı", enlem:36.425670, boylam:30.491230},
-    {tur:"Balon Balığı", enlem:36.418900, boylam:30.489870},
-    {tur:"Balon Balığı", enlem:36.405430, boylam:30.475670},
-    {tur:"Balon Balığı", enlem:36.391230, boylam:30.468900},
-    {tur:"Balon Balığı", enlem:36.385670, boylam:30.462340},
-    {tur:"Balon Balığı", enlem:36.315430, boylam:30.471230},
-    {tur:"Balon Balığı", enlem:36.308900, boylam:30.465430},
-    {tur:"Balon Balığı", enlem:36.302340, boylam:30.478900},
-    {tur:"Balon Balığı", enlem:36.295670, boylam:30.461230},
-    {tur:"Balon Balığı", enlem:36.281230, boylam:30.445670},
-    {tur:"Balon Balığı", enlem:36.275670, boylam:30.438900},
-    {tur:"Balon Balığı", enlem:36.261230, boylam:30.425430},
-    {tur:"Balon Balığı", enlem:36.252340, boylam:30.408900},
-    {tur:"Balon Balığı", enlem:36.258900, boylam:30.395670},
-    {tur:"Balon Balığı", enlem:36.265430, boylam:30.381230},
-    {tur:"Balon Balığı", enlem:36.271230, boylam:30.365430},
-    {tur:"Balon Balığı", enlem:36.278900, boylam:30.341230},
-    {tur:"Balon Balığı", enlem:36.285430, boylam:30.325670},
-    {tur:"Balon Balığı", enlem:36.289800, boylam:30.301230},
-    {tur:"Balon Balığı", enlem:36.291230, boylam:30.285670},
-    {tur:"Balon Balığı", enlem:36.294560, boylam:30.261230},
-    {tur:"Balon Balığı", enlem:36.287890, boylam:30.245670},
-    {tur:"Balon Balığı", enlem:36.282340, boylam:30.221230},
-    {tur:"Balon Balığı", enlem:36.295670, boylam:30.158900},
-    {tur:"Balon Balığı", enlem:36.291230, boylam:30.165430},
-    {tur:"Balon Balığı", enlem:36.298900, boylam:30.171230},
-    {tur:"Balon Balığı", enlem:36.305430, boylam:30.185670},
-    {tur:"Balon Balığı", enlem:36.321230, boylam:30.201230},
-    {tur:"Balon Balığı", enlem:36.335670, boylam:30.225430},
-    {tur:"Balon Balığı", enlem:36.348900, boylam:30.241230},
-    {tur:"Balon Balığı", enlem:36.361230, boylam:30.265430},
-    {tur:"Balon Balığı", enlem:36.245670, boylam:30.415670},
-    {tur:"Balon Balığı", enlem:36.238900, boylam:30.421230},
-    {tur:"Balon Balığı", enlem:36.231230, boylam:30.405430},
-    {tur:"Balon Balığı", enlem:36.225670, boylam:30.391230},
-    {tur:"Balon Balığı", enlem:36.455430, boylam:30.501230},
-    {tur:"Balon Balığı", enlem:36.441230, boylam:30.495670},
-    {tur:"Balon Balığı", enlem:36.515430, boylam:30.561230},
-    {tur:"Balon Balığı", enlem:36.541230, boylam:30.568900},
-    {tur:"Balon Balığı", enlem:36.558900, boylam:30.581230},
-    {tur:"Balon Balığı", enlem:36.572340, boylam:30.591230},
-    {tur:"Balon Balığı", enlem:36.591230, boylam:30.565430},
-    {tur:"Balon Balığı", enlem:36.611230, boylam:30.558900},
-    {tur:"Balon Balığı", enlem:36.711230, boylam:30.551230},
-    {tur:"Balon Balığı", enlem:36.735670, boylam:30.565430},
-    {tur:"Balon Balığı", enlem:36.771230, boylam:30.575670},
-    {tur:"Balon Balığı", enlem:36.785430, boylam:30.581230},
-    {tur:"Balon Balığı", enlem:36.808900, boylam:30.591230},
-    {tur:"Balon Balığı", enlem:36.821230, boylam:30.601230},
-    {tur:"Balon Balığı", enlem:36.841230, boylam:30.605430},
-    {tur:"Balon Balığı", enlem:36.855430, boylam:30.621230},
-    {tur:"Balon Balığı", enlem:36.281230, boylam:30.191230},
-    {tur:"Balon Balığı", enlem:36.286540, boylam:30.176540},
-    {tur:"Balon Balığı", enlem:36.835120, boylam:30.608450},
-    {tur:"Balon Balığı", enlem:36.829450, boylam:30.598210}
-  ];
+/* ================= RENKLER ================= */
+const renkler = {
+  "Aslan Balığı": "red",
+  "Sokar Balığı": "orange",
+  "Balon Balığı": "purple",
+  "Asker Balığı": "darkred",
+  "Diğer Türler": "blue"
+};
 
-  // Türlere renk ver
-  const renkler = {
-    "Aslan Balığı": "red",
-    "Sokar Balığı": "blue",
-    "Balon Balığı": "orange",
-    "Diğer Türler": "green"
-  };
+/* ================= TÜM BALIK VERİLERİ ================= */
+const baliklar = [
 
-  // Marker’ları ekle
-  baliklar.forEach(balik => {
-    L.circleMarker([balik.enlem, balik.boylam], {
-      radius: 6,
-      color: renkler[balik.tur],
-      fillOpacity: 0.8
-    }).bindPopup(`<b>${balik.tur}</b><br>Enlem: ${balik.enlem}<br>Boylam: ${balik.boylam}`)
-    .addTo(map);
-  });
+/* ================= ASLAN BALIĞI ================= */
+{tur:"Aslan Balığı", enlem:36.845670, boylam:30.791230},
+{tur:"Aslan Balığı", enlem:36.847890, boylam:30.801230},
+{tur:"Aslan Balığı", enlem:36.848560, boylam:30.808900},
+{tur:"Aslan Balığı", enlem:36.849120, boylam:30.815670},
+{tur:"Aslan Balığı", enlem:36.846780, boylam:30.821230},
+{tur:"Aslan Balığı", enlem:36.851230, boylam:30.828900},
+{tur:"Aslan Balığı", enlem:36.853450, boylam:30.835670},
+{tur:"Aslan Balığı", enlem:36.850120, boylam:30.841230},
+{tur:"Aslan Balığı", enlem:36.854560, boylam:30.848900},
+{tur:"Aslan Balığı", enlem:36.852340, boylam:30.855670},
+{tur:"Aslan Balığı", enlem:36.856780, boylam:30.861230},
+{tur:"Aslan Balığı", enlem:36.853450, boylam:30.868900},
+{tur:"Aslan Balığı", enlem:36.855670, boylam:30.875670},
+{tur:"Aslan Balığı", enlem:36.851230, boylam:30.881230},
+{tur:"Aslan Balığı", enlem:36.854320, boylam:30.888900},
+{tur:"Aslan Balığı", enlem:36.849870, boylam:30.895670},
+{tur:"Aslan Balığı", enlem:36.852100, boylam:30.901230},
+{tur:"Aslan Balığı", enlem:36.848900, boylam:30.908900},
+{tur:"Aslan Balığı", enlem:36.850560, boylam:30.915670},
+{tur:"Aslan Balığı", enlem:36.847650, boylam:30.921230},
+{tur:"Aslan Balığı", enlem:36.849320, boylam:30.928900},
+{tur:"Aslan Balığı", enlem:36.846540, boylam:30.935670},
+{tur:"Aslan Balığı", enlem:36.850120, boylam:30.941230},
+{tur:"Aslan Balığı", enlem:36.844560, boylam:30.812340},
+{tur:"Aslan Balığı", enlem:36.842340, boylam:30.825670},
+{tur:"Aslan Balığı", enlem:36.848900, boylam:30.832100},
+{tur:"Aslan Balığı", enlem:36.851230, boylam:30.864320},
+{tur:"Aslan Balığı", enlem:36.853450, boylam:30.892340},
+{tur:"Aslan Balığı", enlem:36.845670, boylam:30.918900},
+{tur:"Aslan Balığı", enlem:36.843210, boylam:30.932100},
+{tur:"Aslan Balığı", enlem:36.841230, boylam:30.795670},
+{tur:"Aslan Balığı", enlem:36.839870, boylam:30.805430},
+{tur:"Aslan Balığı", enlem:36.835670, boylam:30.815670},
+{tur:"Aslan Balığı", enlem:36.861230, boylam:30.852340},
+{tur:"Aslan Balığı", enlem:36.865430, boylam:30.871230},
+{tur:"Aslan Balığı", enlem:36.858900, boylam:30.885670},
+{tur:"Aslan Balığı", enlem:36.862340, boylam:30.905430},
+{tur:"Aslan Balığı", enlem:36.840120, boylam:30.945670},
+{tur:"Aslan Balığı", enlem:36.838900, boylam:30.925670},
+{tur:"Aslan Balığı", enlem:36.845430, boylam:30.882340},
+{tur:"Aslan Balığı", enlem:36.847650, boylam:30.858900},
+{tur:"Aslan Balığı", enlem:36.842340, boylam:30.838900},
+{tur:"Aslan Balığı", enlem:36.849870, boylam:30.798900},
+{tur:"Aslan Balığı", enlem:36.855430, boylam:30.912340},
+{tur:"Aslan Balığı", enlem:36.838760, boylam:30.938900},
+
+/* ================= SOKAR BALIĞI ================= */
+{tur:"Sokar Balığı", enlem:36.884560, boylam:30.691230},
+{tur:"Sokar Balığı", enlem:36.882340, boylam:30.688900},
+{tur:"Sokar Balığı", enlem:36.880120, boylam:30.685670},
+{tur:"Sokar Balığı", enlem:36.878900, boylam:30.681230},
+{tur:"Sokar Balığı", enlem:36.876540, boylam:30.675670},
+{tur:"Sokar Balığı", enlem:36.874320, boylam:30.671230},
+{tur:"Sokar Balığı", enlem:36.872100, boylam:30.665430},
+{tur:"Sokar Balığı", enlem:36.869870, boylam:30.658900},
+{tur:"Sokar Balığı", enlem:36.865430, boylam:30.651230},
+{tur:"Sokar Balığı", enlem:36.862340, boylam:30.645670},
+{tur:"Sokar Balığı", enlem:36.858900, boylam:30.638900},
+{tur:"Sokar Balığı", enlem:36.855670, boylam:30.631230},
+{tur:"Sokar Balığı", enlem:36.852340, boylam:30.625670},
+{tur:"Sokar Balığı", enlem:36.848900, boylam:30.618900},
+{tur:"Sokar Balığı", enlem:36.845670, boylam:30.612340},
+{tur:"Sokar Balığı", enlem:36.841230, boylam:30.608900},
+{tur:"Sokar Balığı", enlem:36.838900, boylam:30.605670},
+
+/* ================= DİĞER TÜRLER ================= */
+{tur:"Diğer Türler", enlem:36.865430, boylam:30.681230},
+{tur:"Diğer Türler", enlem:36.851230, boylam:30.665430},
+{tur:"Diğer Türler", enlem:36.841230, boylam:30.651230},
+{tur:"Diğer Türler", enlem:36.835430, boylam:30.751230},
+{tur:"Diğer Türler", enlem:36.825670, boylam:30.781230},
+{tur:"Diğer Türler", enlem:36.815430, boylam:30.851230},
+
+/* ================= BALON BALIĞI ================= */
+{tur:"Balon Balığı", enlem:36.598210, boylam:30.589340},
+{tur:"Balon Balığı", enlem:36.794560, boylam:30.578900},
+{tur:"Balon Balığı", enlem:36.741230, boylam:30.561230},
+{tur:"Balon Balığı", enlem:36.651230, boylam:30.581230},
+{tur:"Balon Balığı", enlem:36.558900, boylam:30.581230},
+
+/* ================= ASKER BALIĞI ================= */
+{tur:"Asker Balığı", enlem:36.579120, boylam:30.584230},
+{tur:"Asker Balığı", enlem:36.574560, boylam:30.589120},
+{tur:"Asker Balığı", enlem:36.571230, boylam:30.576780},
+{tur:"Asker Balığı", enlem:36.566890, boylam:30.571230},
+{tur:"Asker Balığı", enlem:36.562340, boylam:30.582340},
+{tur:"Asker Balığı", enlem:36.558120, boylam:30.568900},
+{tur:"Asker Balığı", enlem:36.554670, boylam:30.574560},
+{tur:"Asker Balığı", enlem:36.551230, boylam:30.566780},
+{tur:"Asker Balığı", enlem:36.547890, boylam:30.579120},
+{tur:"Asker Balığı", enlem:36.543450, boylam:30.571230},
+{tur:"Asker Balığı", enlem:36.539120, boylam:30.584560},
+{tur:"Asker Balığı", enlem:36.535670, boylam:30.569120},
+{tur:"Asker Balığı", enlem:36.532340, boylam:30.576780},
+{tur:"Asker Balığı", enlem:36.528900, boylam:30.565430},
+{tur:"Asker Balığı", enlem:36.524560, boylam:30.580230}
+
+];
+
+/* ================= MARKER EKLEME ================= */
+baliklar.forEach(b => {
+  L.circleMarker([b.enlem, b.boylam], {
+    radius: 6,
+    color: renkler[b.tur],
+    fillColor: renkler[b.tur],
+    fillOpacity: 0.8
+  })
+  .bindPopup(`<b>${b.tur}</b>`)
+  .addTo(map);
+});
+
+/* ================= LEJANT ================= */
+const legend = L.control({ position: "bottomright" });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "legend");
+  div.innerHTML += "<b>Balık Türleri</b><br>";
+
+  for (let tur in renkler) {
+    div.innerHTML +=
+      `<i style="background:${renkler[tur]}"></i>${tur}<br>`;
+  }
+  return div;
+};
+
+legend.addTo(map);
 </script>
 
 </body>
 </html>
+
