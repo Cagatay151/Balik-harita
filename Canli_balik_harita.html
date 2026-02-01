@@ -257,33 +257,40 @@
     .addTo(map);
   });
 
-  // LEJANT
-const legend = L.control({ position: "bottomright" });
-
 legend.onAdd = function () {
   const div = L.DomUtil.create("div", "legend");
+
   div.style.background = "white";
   div.style.padding = "8px";
   div.style.borderRadius = "6px";
   div.style.boxShadow = "0 0 5px rgba(0,0,0,0.3)";
   div.style.fontSize = "13px";
 
+  /* 🔥 ÖNEMLİ KISIM */
+  div.style.maxHeight = "150px";
+  div.style.overflowY = "auto";
+
   div.innerHTML += `<b>Balık Türleri</b><br>`;
 
   for (let tur in renkler) {
-    div.innerHTML +=
-      `<i style="
-        background:${renkler[tur]};
-        width:12px;
-        height:12px;
-        display:inline-block;
-        margin-right:6px;
-        border-radius:50%;
-      "></i>${tur}<br>`;
+    div.innerHTML += `
+      <div style="display:flex; align-items:center; margin-bottom:4px;">
+        <span style="
+          background:${renkler[tur]};
+          width:12px;
+          height:12px;
+          border-radius:50%;
+          display:inline-block;
+          margin-right:6px;
+        "></span>
+        ${tur}
+      </div>
+    `;
   }
 
   return div;
 };
+
 
 legend.addTo(map);
 
@@ -291,4 +298,5 @@ legend.addTo(map);
 
 </body>
 </html>
+
 
