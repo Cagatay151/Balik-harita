@@ -257,6 +257,8 @@
     .addTo(map);
   });
 
+const legend = L.control({ position: "bottomright" });
+
 legend.onAdd = function () {
   const div = L.DomUtil.create("div", "legend");
 
@@ -266,9 +268,9 @@ legend.onAdd = function () {
   div.style.boxShadow = "0 0 5px rgba(0,0,0,0.3)";
   div.style.fontSize = "13px";
 
-  // 🔥 ÖNEMLİ: sabit genişlik, taşmayı önler
-  div.style.width = "180px"; // legend genişliğini belirle
-  div.style.overflow = "visible"; // scroll yok
+  /* 🔥 ÖNEMLİ KISIM */
+  div.style.maxHeight = "150px";
+  div.style.overflowY = "auto";
 
   div.innerHTML += `<b>Balık Türleri</b><br>`;
 
@@ -291,11 +293,6 @@ legend.onAdd = function () {
   return div;
 };
 
-legend.addTo(map);
-
-
-
-
 
 legend.addTo(map);
 
@@ -303,6 +300,7 @@ legend.addTo(map);
 
 </body>
 </html>
+
 
 
 
