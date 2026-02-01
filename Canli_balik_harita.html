@@ -256,7 +256,39 @@
     }).bindPopup(`<b>${balik.tur}</b><br>Enlem: ${balik.enlem}<br>Boylam: ${balik.boylam}`)
     .addTo(map);
   });
+
+  // LEJANT
+const legend = L.control({ position: "bottomright" });
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create("div", "legend");
+  div.style.background = "white";
+  div.style.padding = "8px";
+  div.style.borderRadius = "6px";
+  div.style.boxShadow = "0 0 5px rgba(0,0,0,0.3)";
+  div.style.fontSize = "13px";
+
+  div.innerHTML += `<b>Balık Türleri</b><br>`;
+
+  for (let tur in renkler) {
+    div.innerHTML +=
+      `<i style="
+        background:${renkler[tur]};
+        width:12px;
+        height:12px;
+        display:inline-block;
+        margin-right:6px;
+        border-radius:50%;
+      "></i>${tur}<br>`;
+  }
+
+  return div;
+};
+
+legend.addTo(map);
+
 </script>
 
 </body>
 </html>
+
