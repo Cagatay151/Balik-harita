@@ -257,6 +257,8 @@
     .addTo(map);
   });
 
+const legend = L.control({ position: "bottomright" });
+
 legend.onAdd = function () {
   const div = L.DomUtil.create("div", "legend");
 
@@ -292,11 +294,14 @@ legend.onAdd = function () {
 };
 
 
+
+
 legend.addTo(map);
 
 </script>
 
 </body>
 </html>
+
 
 
